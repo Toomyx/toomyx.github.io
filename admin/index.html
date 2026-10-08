@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Toomyx – Tableau de bord</title>
+<meta name="theme-color" content="#0B1020">
+<link rel="icon" href="../icon.png">
+<!-- Tableau de bord administrateur (étape 12). Généré par scripts/publish-site.mjs depuis site/admin/index.template.html.
+     Les chiffres viennent de la fonction admin_stats() : agrégés uniquement, et refusés à tout compte qui n'est pas
+     dans la table admins. Cette page ne contient aucune donnée ; la clé Supabase incluse est la clé publique de l'app. -->
+<style>
+  @font-face { font-family: "Plus Jakarta Sans"; font-weight: 800; src: url(../fonts/PlusJakartaSans_800ExtraBold.ttf); font-display: swap; }
+  @font-face { font-family: "Plus Jakarta Sans"; font-weight: 700; src: url(../fonts/PlusJakartaSans_700Bold.ttf); font-display: swap; }
+  @font-face { font-family: "Inter"; font-weight: 400; src: url(../fonts/Inter_400Regular.ttf); font-display: swap; }
+  @font-face { font-family: "Inter"; font-weight: 600; src: url(../fonts/Inter_600SemiBold.ttf); font-display: swap; }
+  :root { --bg:#0B1020; --surface:#151B2E; --raised:#1F2740; --ink:#F5F7FB; --muted:#A3ABC2; --line:#FFFFFF1F; --brand:#8C7FFF; --violet:#6B5BFF; --rose:#FF4DA6; --bad:#FF6B6B; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--ink); font: 400 15px/1.5 Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 16px 56px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  h1 { font: 800 26px/1.2 "Plus Jakarta Sans", system-ui, sans-serif; margin: 0; letter-spacing: -0.02em; }
+  h2 { font: 700 17px/1.3 "Plus Jakarta Sans", system-ui, sans-serif; margin: 32px 0 12px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 13px; }
+  button { font: 600 15px Inter, system-ui, sans-serif; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--raised); color: var(--ink); cursor: pointer; }
+  button.primary { background: linear-gradient(90deg, var(--violet), var(--rose)); border: 0; color: #fff; }
+  button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+  .tile .label { font-size: 13px; color: var(--muted); }
+  .tile .value { font: 800 30px/1.15 "Plus Jakarta Sans", system-ui, sans-serif; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .tile .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .tile.alert .value { color: var(--bad); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+  .center { text-align: center; }
+  #login, #denied { max-width: 420px; margin: 80px auto; text-align: center; }
+  .hidden { display: none !important; }
+  /* Barres verticales : 30 jours, une seule série par graphique (pas de légende, le titre la nomme). */
+  .chart { position: relative; height: 160px; display: flex; align-items: flex-end; gap: 2px; padding-top: 8px; border-bottom: 1px solid var(--line); }
+  .bar { flex: 1; background: var(--brand); border-radius: 4px 4px 0 0; min-height: 0; position: relative; }
+  .bar.zero { background: transparent; }
+  .hit { flex: 1; height: 100%; display: flex; align-items: flex-end; cursor: default; }
+  .hit:hover .bar:not(.zero), .hit:focus .bar:not(.zero) { filter: brightness(1.2); }
+  .axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .tip { position: absolute; pointer-events: none; background: var(--raised); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; font-size: 13px; white-space: nowrap; transform: translate(-50%, -100%); top: 0; }
+  .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+  details { margin-top: 12px; }
+  summary { cursor: pointer; color: var(--brand); min-height: 44px; display: flex; align-items: center; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  th:first-child, td:first-child { text-align: left; }
+  .list { margin: 6px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted); }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<main>
+  <section id="login" class="hidden">
+    <h1>Tableau de bord Toomyx</h1>
+    <p class="muted">Réservé au propriétaire de Toomyx. Connecte-toi avec le compte Google que tu utilises dans l’app.</p>
+    <button class="primary" id="signin">Se connecter avec Google</button>
+  </section>
+
+  <section id="denied" class="hidden">
+    <h1>Accès réservé</h1>
+    <p class="muted" id="denied-text">Ce compte n’a pas accès au tableau de bord.</p>
+    <button id="signout2">Changer de compte</button>
+  </section>
+
+  <section id="dash" class="hidden">
+    <header>
+      <div>
+        <h1>Tableau de bord</h1>
+        <div class="muted small" id="stamp"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button id="refresh">Actualiser</button>
+        <button id="signout">Se déconnecter</button>
+      </div>
+    </header>
+    <p class="muted small">Chiffres agrégés uniquement : aucun prénom, aucun avis, aucun message.</p>
+
+    <h2>Utilisateurs</h2>
+    <div class="grid" id="users"></div>
+
+    <h2>30 derniers jours</h2>
+    <div class="charts">
+      <div class="card"><div class="small" style="margin-bottom:4px">Comptes actifs par jour</div><div class="chart" id="chart-actifs"></div><div class="axis" id="axis-actifs"></div></div>
+      <div class="card"><div class="small" style="margin-bottom:4px">Inscriptions par jour</div><div class="chart" id="chart-inscrits"></div><div class="axis" id="axis-inscrits"></div></div>
+    </div>
+    <details>
+      <summary>Voir les chiffres jour par jour</summary>
+      <div class="card" style="overflow-x:auto"><table id="table"></table></div>
+    </details>
+
+    <h2>Usage</h2>
+    <div class="grid" id="usage"></div>
+
+    <h2>Invitations</h2>
+    <div class="grid" id="invites"></div>
+
+    <h2>Coût et incidents</h2>
+    <div class="grid" id="health"></div>
+  </section>
+</main>
+
+<script>
+  var sb = window.supabase.createClient('https://lyrrlzbfpwzizqhgybts.supabase.co', 'sb_publishable_t0z22Muc8WcdB_aZUqFvyg_Y3eKsVql', { auth: { persistSession: true, detectSessionInUrl: true } });
+  var $ = function (id) { return document.getElementById(id); };
+  var show = function (id) { ['login', 'denied', 'dash'].forEach(function (x) { $(x).classList.toggle('hidden', x !== id); }); };
+  var nf = new Intl.NumberFormat('fr-FR');
+  var n = function (v) { return nf.format(v || 0); };
+  var pct = function (a, b) { return b ? Math.round((100 * a) / b) + ' %' : '–'; };
+  var esc = function (s) { var d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; };
+
+  function tile(label, value, sub, alert) {
+    return '<div class="tile' + (alert ? ' alert' : '') + '"><div class="label">' + esc(label) + '</div><div class="value">' + esc(value) +
+      '</div>' + (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div>';
+  }
+  function list(obj, names) {
+    var keys = Object.keys(obj || {});
+    if (!keys.length) return '';
+    return '<ul class="list">' + keys.sort(function (a, b) { return obj[b] - obj[a]; })
+      .map(function (k) { return '<li>' + esc((names && names[k]) || k) + ' : ' + n(obj[k]) + '</li>'; }).join('') + '</ul>';
+  }
+  var jour = function (d) { return new Date(d + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }); };
+
+  // Barres avec infobulle au survol (ou au toucher sur téléphone).
+  function bars(id, axisId, rows, key, unit) {
+    var el = $(id);
+    var max = Math.max(1, Math.max.apply(null, rows.map(function (r) { return r[key]; })));
+    el.innerHTML = rows.map(function (r) {
+      var h = Math.round((r[key] / max) * 100);
+      return '<div class="hit" tabindex="0" data-tip="' + esc(jour(r.jour) + ' : ' + n(r[key]) + ' ' + unit) + '">' +
+        '<div class="bar' + (r[key] ? '' : ' zero') + '" style="height:' + h + '%"></div></div>';
+    }).join('') + '<div class="tip hidden"></div>';
+    var tip = el.querySelector('.tip');
+    el.querySelectorAll('.hit').forEach(function (hit) {
+      var on = function () { tip.textContent = hit.dataset.tip; tip.style.left = (hit.offsetLeft + hit.offsetWidth / 2) + 'px'; tip.classList.remove('hidden'); };
+      hit.addEventListener('mouseenter', on); hit.addEventListener('focus', on); hit.addEventListener('touchstart', on, { passive: true });
+      hit.addEventListener('mouseleave', function () { tip.classList.add('hidden'); });
+      hit.addEventListener('blur', function () { tip.classList.add('hidden'); });
+    });
+    $(axisId).innerHTML = '<span>' + jour(rows[0].jour) + '</span><span>max ' + n(max) + '</span><span>' + jour(rows[rows.length - 1].jour) + '</span>';
+  }
+
+  var VERDICTS = { coup_de_coeur: 'Coup de cœur', jaime: 'J’aime', ca_me_tente: 'Ça me tente', pas_pour_moi: 'Pas pour moi', deteste: 'Je déteste', passe: 'Passé' };
+  var CANAUX = { whatsapp: 'WhatsApp', sms: 'SMS', autre: 'Partage ou copie', qr: 'QR code', copie: 'Copie' };
+
+  function render(s) {
+    $('stamp').textContent = 'Mis à jour le ' + new Date(s.generated_at).toLocaleString('fr-FR');
+    var u = s.inscrits, a = s.actifs, r = s.retention;
+    $('users').innerHTML =
+      tile('Inscrits', n(u.total), '+' + n(u.sept_jours) + ' sur 7 jours') +
+      tile('Profil prêt (30 swipes)', n(u.profil_pret), pct(u.profil_pret, u.total) + ' des inscrits') +
+      tile('Actifs aujourd’hui', n(a.jour), n(a.semaine) + ' sur 7 jours · ' + n(a.mois) + ' sur 30 jours') +
+      tile('Rétention J+1', pct(r.j1, r.j1_base), n(r.j1) + ' revenus sur ' + n(r.j1_base)) +
+      tile('Rétention J+7', pct(r.j7, r.j7_base), n(r.j7) + ' revenus sur ' + n(r.j7_base)) +
+      tile('Profils du foyer', n(u.profils_foyer), n(u.profils_enfants) + ' enfants ou ados');
+    var sw = s.swipes, p = s.propositions, m = s.matchs;
+    $('usage').innerHTML =
+      tile('Avis donnés (swipes)', n(sw.total), '+' + n(sw.sept_jours) + ' sur 7 jours · ' + n(sw.passes) + ' passés' + list(sw.par_avis, VERDICTS)) +
+      tile('Demandes « Ce soir »', n(p.ce_soir), '+' + n(p.ce_soir_sept_jours) + ' sur 7 jours') +
+      tile('« Bouleverse-moi »', n(p.bouleverse)) +
+      tile('Demandes avec les enfants', n(p.avec_enfants)) +
+      tile('Matchs du soir', n(m.lances), n(m.termines) + ' terminés · +' + n(m.sept_jours) + ' sur 7 jours') +
+      tile('Matchs parfaits', pct(m.parfaits, m.termines), n(m.parfaits) + ' sur ' + n(m.termines) + ' terminés');
+    var i = s.invitations;
+    $('invites').innerHTML =
+      tile('Invitations partagées', n(i.partages), list(i.par_canal, CANAUX)) +
+      tile('Inscrits grâce à une invitation', n(i.inscrits_invites), pct(i.inscrits_invites, u.total) + ' des inscrits');
+    var inc = s.incidents;
+    $('health').innerHTML =
+      tile('Coût IA', s.cout_ia_euros + ' €', 'Pas d’IA pour l’instant') +
+      tile('Incidents (7 jours)', n(inc.sept_jours), list(inc.par_ecran), inc.sept_jours > 0);
+    var rows = s.courbe || [];
+    if (rows.length) {
+      bars('chart-actifs', 'axis-actifs', rows, 'actifs', 'actif(s)');
+      bars('chart-inscrits', 'axis-inscrits', rows, 'inscrits', 'inscription(s)');
+      $('table').innerHTML = '<tr><th>Jour</th><th>Actifs</th><th>Inscriptions</th></tr>' +
+        rows.slice().reverse().map(function (x) { return '<tr><td>' + jour(x.jour) + '</td><td>' + n(x.actifs) + '</td><td>' + n(x.inscrits) + '</td></tr>'; }).join('');
+    }
+  }
+
+  async function load() {
+    var res = await sb.auth.getSession();
+    if (!res.data.session) return show('login');
+    var st = await sb.rpc('admin_stats');
+    if (st.error) {
+      $('denied-text').textContent = /forbidden/.test(st.error.message)
+        ? 'Ce compte (' + (res.data.session.user.email || '') + ') n’a pas accès au tableau de bord.'
+        : 'Les chiffres ne se chargent pas. Vérifie ta connexion et actualise la page.';
+      return show('denied');
+    }
+    render(st.data);
+    show('dash');
+  }
+
+  $('signin').onclick = function () {
+    sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + '/admin/', queryParams: { prompt: 'select_account' } } });
+  };
+  var out = function () { sb.auth.signOut().then(function () { show('login'); }); };
+  $('signout').onclick = out;
+  $('signout2').onclick = out;
+  $('refresh').onclick = load;
+  sb.auth.onAuthStateChange(function (event) { if (event === 'SIGNED_IN') load(); });
+  load();
+</script>
+</body>
+</html>
