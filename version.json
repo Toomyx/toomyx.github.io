@@ -1,7 +1,7 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "url": "https://toomyx.github.io",
-  "apk": "https://expo.dev/artifacts/eas/AY_u4UgQJr2AJ3KtiMn1PqkF_ZTPZ6U982o-r9WeSdo.apk",
-  "sha256": "2397051ad761f9c7f199c173cb683f4d4d22780a2b4c5a12d8f732459756153e",
-  "notes": "Plus légère, avec la page de téléchargement Toomyx. Installe-la par-dessus celle-ci : tu gardes ton compte et tous tes avis."
+  "apk": "https://expo.dev/artifacts/eas/z-Ty66HdLInztnoAQSxJMn0ggo1j5ImY5DcT0gOBR7Y.apk",
+  "sha256": "d0b9be384300c37763fba77ed0c65c1ae60e6b13d50c9b87c6909ea1579108a7",
+  "notes": "Nouveau : les photos éphémères dans le chat, et le clavier ne cache plus ce que tu écris. Installe-la par-dessus celle-ci : tu gardes ton compte et tous tes avis."
 }
