@@ -28,6 +28,7 @@
   .logo { display: block; width: 230px; max-width: 70%; margin: 0 auto; }
   .tagline { text-align: center; color: var(--muted); margin-top: 10px; }
   .invite { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-top: 28px; display: none; }
+  .invite-code { font: 800 30px/1.2 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: 6px; text-align: center; margin-top: 8px; color: var(--ink); }
   .btn { display: flex; align-items: center; justify-content: center; min-height: 56px; border-radius: 999px; margin-top: 28px;
          background: linear-gradient(90deg, var(--violet), var(--rose)); color: #fff; text-decoration: none;
          font: 700 19px/1.2 Inter, system-ui, sans-serif; box-shadow: 0 10px 30px -8px rgba(107,91,255,.55); }
@@ -53,7 +54,11 @@
   <svg class="logo" role="img" aria-label="Toomyx" xmlns="http://www.w3.org/2000/svg" viewBox="-20 8 4466 932"><defs><linearGradient id="gx" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#6B5BFF"/><stop offset="1" stop-color="#FF4DA6"/></linearGradient><radialGradient id="gi" cx="0.4" cy="0.35" r="0.75"><stop offset="0" stop-color="#8C7FFF"/><stop offset="1" stop-color="#4A39E0"/></radialGradient></defs><path fill="#FFFFFF" transform="translate(0.0,900) scale(1,-1)" d="M200 0V610H11V745H541V610H355V0Z"/><circle cx="955.0" cy="528.0" r="385.0" fill="#FFFFFF"/><circle cx="1005.0" cy="566.5" r="192.5" fill="url(#gi)"/><circle cx="1005.0" cy="566.5" r="96.2" fill="#0B1020"/><circle cx="943.4" cy="497.2" r="38.5" fill="#FFFFFF"/><path d="M563.2 283.2A462.0 462.0 0 0 1 1346.8 283.2" fill="none" stroke="#6B5BFF" stroke-width="65.5" stroke-linecap="round"/><circle cx="1765.0" cy="528.0" r="385.0" fill="#FFFFFF"/><circle cx="1815.0" cy="566.5" r="192.5" fill="url(#gi)"/><circle cx="1815.0" cy="566.5" r="96.2" fill="#0B1020"/><circle cx="1753.5" cy="497.2" r="38.5" fill="#FFFFFF"/><path d="M1373.2 283.2A462.0 462.0 0 0 1 2156.8 283.2" fill="none" stroke="#FF4DA6" stroke-width="65.5" stroke-linecap="round"/><path fill="#FFFFFF" transform="translate(2186.0,900) scale(1,-1)" d="M66 0V745H216L495 375H425L696 745H846V0H691V574L753 560L466 190H446L169 560L221 574V0Z"/><path fill="#FFFFFF" transform="translate(3092.0,900) scale(1,-1)" d="M259 0V325L11 745H188L368 429H305L484 745H661L414 326V0Z"/><path fill="url(#gx)" transform="translate(3744.0,900) scale(1,-1)" d="M11 0 255 373 11 745H189L385 447H298L493 745H671L428 373L671 0H493L298 299L385 298L189 0Z"/></svg>
   <p class="tagline">Trop de choix. Un match parfait.</p>
 
-  <div class="invite" id="invite"><strong id="invite-text">On t’invite sur Toomyx !</strong></div>
+  <div class="invite" id="invite">
+    <strong>On t’invite sur Toomyx !</strong>
+    <p class="muted" style="margin:6px 0 0">Ton code d’invitation, à saisir dans l’app quand tu crées ton profil :</p>
+    <div class="invite-code" id="invite-code"></div>
+  </div>
 
   <h1>Ce soir, on regarde quoi&nbsp;?</h1>
   <p class="muted" style="margin-top:12px">Quelques swipes pour apprendre tes goûts, et Toomyx te trouve le film ou la série parfaite. Seul, ou à deux avec le Match du soir.</p>
@@ -100,10 +105,13 @@
   </footer>
 </main>
 <script>
-  // Lien d'invitation (?i=CODE) : message d'accueil (étape 11).
+  // Lien d'invitation (?i=CODE) : message d'accueil et code à saisir dans l'app (étape 11).
   try {
     var code = new URLSearchParams(location.search).get('i');
-    if (code && /^[A-Z0-9]{4,12}$/i.test(code)) document.getElementById('invite').style.display = 'block';
+    if (code && /^[A-Z0-9]{4,12}$/i.test(code)) {
+      document.getElementById('invite-code').textContent = code.toUpperCase();
+      document.getElementById('invite').style.display = 'block';
+    }
   } catch (e) {}
   // Sur iPhone, l'APK ne s'installe pas : le bouton mène à la partie iPhone.
   if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
