@@ -1,7 +1,7 @@
 {
-  "version": "0.3.0",
+  "version": "0.4.0",
   "url": "https://toomyx.github.io",
-  "apk": "https://expo.dev/artifacts/eas/z-Ty66HdLInztnoAQSxJMn0ggo1j5ImY5DcT0gOBR7Y.apk",
-  "sha256": "d0b9be384300c37763fba77ed0c65c1ae60e6b13d50c9b87c6909ea1579108a7",
-  "notes": "Nouveau : les photos éphémères dans le chat, et le clavier ne cache plus ce que tu écris. Installe-la par-dessus celle-ci : tu gardes ton compte et tous tes avis."
+  "apk": "https://expo.dev/artifacts/eas/M0JfQizHhuvkcvNdyHTCcrgXTPrQAbQn-nxYjJslLDE.apk",
+  "sha256": "88562ad379bae9d6bd41c78551d3a6e32d8d6bdcfb82cc020ae844d969a27d1e",
+  "notes": "Nouveau : les mini-vidéos éphémères dans le chat. Installe-la par-dessus celle-ci : tu gardes ton compte et tous tes avis."
 }
