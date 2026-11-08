@@ -1,7 +1,7 @@
 {
   "version": "0.4.0",
   "url": "https://toomyx.github.io",
-  "apk": "https://expo.dev/artifacts/eas/M0JfQizHhuvkcvNdyHTCcrgXTPrQAbQn-nxYjJslLDE.apk",
-  "sha256": "88562ad379bae9d6bd41c78551d3a6e32d8d6bdcfb82cc020ae844d969a27d1e",
-  "notes": "Nouveau : les mini-vidéos éphémères dans le chat. Installe-la par-dessus celle-ci : tu gardes ton compte et tous tes avis."
+  "apk": "https://github.com/Toomyx/toomyx.github.io/releases/download/v0.4.0/toomyx-0.4.0.apk",
+  "sha256": "450c088ca68b406478528737e750314acc0e4bbd49889bf84643dc7eb3672b38",
+  "notes": "Nouveau : tu peux utiliser Toomyx sans compte. Installe-la par-dessus celle-ci : tu gardes ton compte et tous tes avis."
 }
