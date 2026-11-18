@@ -33,6 +33,8 @@
          background: linear-gradient(90deg, var(--violet), var(--rose)); color: #fff; text-decoration: none;
          font: 700 19px/1.2 Inter, system-ui, sans-serif; box-shadow: 0 10px 30px -8px rgba(107,91,255,.55); }
   .btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  /* Bouton iPhone (18 novembre 2026) : visible partout sauf sur iPhone, où le bouton principal ouvre déjà la version web. */
+  .btn.second { margin-top: 12px; background: var(--raised); border: 1px solid var(--line); box-shadow: none; }
   .meta { text-align: center; font-size: 14px; color: var(--muted); margin-top: 10px; }
   ol { padding-left: 22px; margin: 0; }
   li { margin-bottom: 10px; }
@@ -102,6 +104,8 @@
 
   <a class="btn" id="download" href="https://github.com/Toomyx/toomyx.github.io/releases/download/v0.4.0/toomyx-0.4.0.apk">Télécharger Toomyx pour Android</a>
   <p class="meta" id="meta">Version 0.4.0 · 53 Mo · bêta gratuite · Android 7 et plus</p>
+  <a class="btn second" id="iphone-btn" href="/app/">Sur iPhone : ouvrir Toomyx</a>
+  <p class="meta" id="iphone-meta">Version web gratuite, à ouvrir dans Safari · <a href="#iphone">comment l’installer</a></p>
 
   <!-- Présentation (18 novembre 2026), la même qu'à la première ouverture de l'app. -->
   <div class="tour">
@@ -231,6 +235,8 @@
     btn.href = '/app/';
     btn.textContent = 'Ouvrir Toomyx sur iPhone';
     document.getElementById('meta').textContent = 'Version web gratuite · puis Partager › Sur l’écran d’accueil';
+    document.getElementById('iphone-btn').style.display = 'none';
+    document.getElementById('iphone-meta').style.display = 'none';
   }
 </script>
 </body>
