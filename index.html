@@ -46,6 +46,43 @@
   .qr span { font-size: 13px; color: var(--muted); }
   footer { margin-top: 44px; font-size: 13px; color: var(--muted); text-align: center; }
   a { color: var(--brand); }
+
+  /* Présentation (18 novembre 2026) : la même que celle envoyée aux testeurs. */
+  .tour { display: flex; flex-direction: column; gap: 14px; margin-top: 36px; }
+  .tour h2 { margin: 0; }
+  .eyebrow { font: 700 12px/1 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); margin: 0; }
+  .block { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .block p { margin: 0; }
+  .star { border: 2px solid transparent; background: linear-gradient(var(--surface), var(--surface)) padding-box, linear-gradient(120deg, var(--violet), var(--rose)) border-box; }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  @media (max-width: 480px) { .steps { grid-template-columns: 1fr; } }
+  .step { background: var(--raised); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .step b { font-family: "Plus Jakarta Sans", system-ui, sans-serif; }
+  .step span { font-size: 14px; color: var(--muted); }
+  .step .n { font: 800 13px/1 "Plus Jakarta Sans", system-ui, sans-serif; color: var(--brand); }
+  .gestures { display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; align-items: center; font-size: 15px; }
+  .g { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; font: 800 16px/1 "Plus Jakarta Sans", system-ui, sans-serif; color: #fff; }
+  .g.up { background: var(--rose); } .g.right { background: #2FA874; } .g.left { background: #6B7299; } .g.down { background: #E04848; } .g.env { background: #C98A12; }
+  .duel { display: flex; gap: 8px; }
+  .who { flex: 1; background: var(--raised); border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .who b { font-family: "Plus Jakarta Sans", system-ui, sans-serif; }
+  .votes { display: flex; gap: 5px; flex-wrap: wrap; }
+  .v { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 3px 8px; color: #fff; }
+  .v.ok { background: #2FA874; } .v.no { background: #6B7299; }
+  .result { background: linear-gradient(120deg, var(--violet), var(--rose)); color: #fff; border-radius: 14px; padding: 12px 14px; }
+  .result b { display: block; font: 800 17px/1.3 "Plus Jakarta Sans", system-ui, sans-serif; }
+  ul.ticks { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  ul.ticks li { margin: 0; padding-left: 20px; position: relative; }
+  ul.ticks li::before { content: ""; position: absolute; left: 2px; top: .55em; width: 8px; height: 8px; border-radius: 3px; background: var(--brand); }
+  .radar-row { display: grid; grid-template-columns: minmax(0, 210px) 1fr; gap: 16px; align-items: center; }
+  @media (max-width: 480px) { .radar-row { grid-template-columns: 1fr; justify-items: center; } }
+  .radar { width: 100%; max-width: 210px; height: auto; }
+  .radar text { font: 600 10px Inter, system-ui, sans-serif; fill: var(--muted); }
+  .legend { display: flex; gap: 14px; font-size: 13px; font-weight: 600; }
+  .legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .split { display: flex; height: 14px; border-radius: 999px; overflow: hidden; }
+  .split .a { flex: 7; background: var(--violet); } .split .b { flex: 3; background: var(--rose); }
+  .split-legend { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -65,6 +102,81 @@
 
   <a class="btn" id="download" href="https://github.com/Toomyx/toomyx.github.io/releases/download/v0.4.0/toomyx-0.4.0.apk">Télécharger Toomyx pour Android</a>
   <p class="meta" id="meta">Version 0.4.0 · 53 Mo · bêta gratuite · Android 7 et plus</p>
+
+  <!-- Présentation (18 novembre 2026), la même qu'à la première ouverture de l'app. -->
+  <div class="tour">
+    <section class="block" aria-labelledby="t-how">
+      <p class="eyebrow">En 3 minutes</p>
+      <h2 id="t-how">Comment ça marche</h2>
+      <div class="steps">
+        <div class="step"><span class="n">1</span><b>Tu swipes</b><span>30 affiches de films et séries, et quelques questions entre deux.</span></div>
+        <div class="step"><span class="n">2</span><b>Ton ADN télé</b><span>Toomyx dessine ton profil de goûts et lui donne un nom.</span></div>
+        <div class="step"><span class="n">3</span><b>Ce soir</b><span>Ton humeur, le format, et 5 idées faites pour toi.</span></div>
+      </div>
+      <div class="gestures">
+        <span class="g up" aria-hidden="true">↑</span><span><b>Coup de cœur</b> : vu et adoré</span>
+        <span class="g right" aria-hidden="true">→</span><span><b>J’aime</b> : vu et aimé</span>
+        <span class="g left" aria-hidden="true">←</span><span><b>Pas pour moi</b></span>
+        <span class="g down" aria-hidden="true">↓</span><span><b>Je déteste</b></span>
+        <span class="g env" aria-hidden="true">★</span><span><b>Ça me tente</b> : pas encore vu, envie de le voir</span>
+      </div>
+    </section>
+
+    <section class="block star" aria-labelledby="t-match">
+      <p class="eyebrow">Le cœur de Toomyx</p>
+      <h2 id="t-match">Le Match du soir, pour les couples</h2>
+      <p>Fini le « je sais pas, choisis, toi ». Toomyx sort <strong>15 titres que vous n’avez vus ni l’un ni l’autre</strong>, vos envies communes en tête. Chacun swipe à son tour, sur le même téléphone ou chacun sur le sien.</p>
+      <div class="duel" aria-hidden="true">
+        <div class="who"><b>Toi</b><div class="votes"><span class="v ok">Dune 2</span><span class="v no">Barbie</span><span class="v ok">Slow Horses</span></div></div>
+        <div class="who"><b>Ton conjoint</b><div class="votes"><span class="v ok">Dune 2</span><span class="v ok">Barbie</span><span class="v no">Slow Horses</span></div></div>
+      </div>
+      <div class="result"><b>Match : Dune, deuxième partie</b>Toujours 5 idées à la fin, qu’il y ait un match ou non.</div>
+      <ul class="ticks">
+        <li>Ça marche aussi à 3, 4 ou 5, entre amis ou en famille.</li>
+        <li>Ton conjoint n’a pas l’app ? Crée son profil sur ton téléphone en 30 swipes.</li>
+        <li>Il l’a déjà ? Récupère son ADN par QR code ou code court. Il peut te retirer l’accès quand il veut.</li>
+      </ul>
+    </section>
+
+    <section class="block" aria-labelledby="t-adn">
+      <p class="eyebrow">Mon ADN</p>
+      <h2 id="t-adn">Ton profil de goûts, et le vôtre</h2>
+      <div class="radar-row">
+        <svg class="radar" viewBox="0 0 230 230" role="img" aria-label="Exemple : deux radars de goûts superposés sur 9 genres">
+          <g fill="none" stroke="#FFFFFF2E" stroke-width="1">
+            <polygon points="115,35 166,54 194,101 184,155 145,190 85,190 46,155 36,101 64,54"/>
+            <polygon points="115,62 149,75 168,106 161,142 135,166 95,166 69,142 62,106 81,75" stroke-dasharray="3 4"/>
+            <polygon points="115,88 132,95 142,111 139,129 125,141 105,141 91,129 88,111 98,95"/>
+          </g>
+          <polygon points="115,52 160,60 175,108 170,150 140,182 98,164 80,134 60,106 92,82" fill="#8C7FFF" fill-opacity=".35" stroke="#8C7FFF" stroke-width="2"/>
+          <polygon points="115,44 150,73 158,110 182,154 125,150 88,180 52,152 72,107 70,61" fill="#FF4DA6" fill-opacity=".25" stroke="#FF4DA6" stroke-width="2"/>
+          <text x="115" y="22" text-anchor="middle">Comédie</text><text x="182" y="46" text-anchor="middle">Drame</text>
+          <text x="212" y="104" text-anchor="middle">Polar</text><text x="203" y="170" text-anchor="middle">SF</text>
+          <text x="152" y="210" text-anchor="middle">Frissons</text><text x="78" y="210" text-anchor="middle">Action</text>
+          <text x="26" y="170" text-anchor="middle">Romance</text><text x="19" y="104" text-anchor="middle">Histoire</text>
+          <text x="48" y="46" text-anchor="middle">Animation</text>
+        </svg>
+        <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+          <p>Un radar de <strong>9 genres</strong> qui se précise à chaque avis : plus un point est loin du centre, plus tu aimes.</p>
+          <p>Touche <strong>« Comparer avec… »</strong> pour superposer le radar de ton conjoint : vos terrains d’entente sautent aux yeux.</p>
+          <div class="legend"><span><i style="background:#8C7FFF"></i>Toi</span><span><i style="background:#FF4DA6"></i>Ton conjoint</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="t-choix">
+      <p class="eyebrow">Notre parti pris</p>
+      <h2 id="t-choix">Du récent, et les bangers</h2>
+      <p>Toomyx ne cherche pas à tout lister : des films et séries de <strong>moins de 10 ans</strong> en priorité, et au-delà seulement les gros succès et les grandes sagas.</p>
+      <div class="split" aria-hidden="true"><span class="a"></span><span class="b"></span></div>
+      <div class="split-legend"><span><strong style="color:var(--brand)">70 %</strong> de titres de moins de 5 ans</span><span><strong style="color:var(--rose)">30 %</strong> pour le reste</span></div>
+      <ul class="ticks">
+        <li><strong>Du nouveau pour toi</strong> : la nouvelle saison d’une série aimée, la suite d’un film adoré.</li>
+        <li><strong>Bouleverse-moi</strong> : 5 pas de côté, sans quitter le genre choisi.</li>
+        <li>Jamais un titre déjà vu ou détesté.</li>
+      </ul>
+    </section>
+  </div>
 
   <h2>Scanne avec ton téléphone</h2>
   <div class="qrs">
@@ -92,14 +204,6 @@
   </ol>
   <p class="muted" style="margin-top:12px">Ouvre toujours Toomyx depuis cette icône : c’est elle qui garde ta connexion. Tout y est, sauf les photos du chat, réservées à l’app Android.</p>
 
-  <h2>Ce que fait Toomyx</h2>
-  <ul class="features">
-    <li><strong>Ton ADN télé</strong> : ton profil de goûts, appris en quelques swipes.</li>
-    <li><strong>Ce soir</strong> : 5 idées faites pour toi, selon ton humeur et le format qui te tente.</li>
-    <li><strong>Match du soir</strong> : chacun swipe de son côté, et vous trouvez le film qui vous plaît à tous les deux.</li>
-  </ul>
-  <p class="muted">Notre parti pris : les nouveautés, les gros succès et les grandes sagas. Toomyx ne cherche pas à tout lister, il te propose ce qui vaut vraiment ta soirée.</p>
-
   <h2>Sécurité</h2>
   <div class="card">
     <p style="margin:0">Empreinte SHA-256 du fichier <strong>toomyx-0.4.0.apk</strong>, pour vérifier qu’il n’a pas été modifié :</p>
@@ -108,7 +212,7 @@
   </div>
 
   <footer>
-    Mis à jour le 9 novembre 2026 · <a href="confidentialite.html">Confidentialité</a><br>
+    Mis à jour le 18 novembre 2026 · <a href="confidentialite.html">Confidentialité</a><br>
     Données et affiches : TMDB. Toomyx utilise l’API TMDB sans être approuvé ni certifié par TMDB.
   </footer>
 </main>
