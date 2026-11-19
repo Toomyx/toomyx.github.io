@@ -28,7 +28,7 @@
   button { font: 600 15px Inter, system-ui, sans-serif; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--raised); color: var(--ink); cursor: pointer; }
   button.primary { background: linear-gradient(90deg, var(--violet), var(--rose)); border: 0; color: #fff; }
   button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(170px, 100%), 1fr)); gap: 12px; }
   .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
   .tile .label { font-size: 13px; color: var(--muted); }
   .tile .value { font: 800 30px/1.15 "Plus Jakarta Sans", system-ui, sans-serif; margin-top: 4px; font-variant-numeric: tabular-nums; }
@@ -46,13 +46,22 @@
   .hit:hover .bar:not(.zero), .hit:focus .bar:not(.zero) { filter: brightness(1.2); }
   .axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 6px; }
   .tip { position: absolute; pointer-events: none; background: var(--raised); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; font-size: 13px; white-space: nowrap; transform: translate(-50%, -100%); top: 0; }
-  .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+  .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 12px; }
   details { margin-top: 12px; }
   summary { cursor: pointer; color: var(--brand); min-height: 44px; display: flex; align-items: center; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
   th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); }
   th:first-child, td:first-child { text-align: left; }
   .list { margin: 6px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted); }
+  /* Classements (19 novembre 2026) : titres les plus matchés, envies les plus fréquentes. */
+  .tops { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 12px; }
+  .rank { margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .rank li { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; font-size: 14px; }
+  .rank .meter { grid-column: 1 / -1; height: 6px; border-radius: 999px; background: var(--raised); overflow: hidden; }
+  .rank .meter i { display: block; height: 100%; background: linear-gradient(90deg, var(--violet), var(--rose)); }
+  .rank b { font-variant-numeric: tabular-nums; }
+  .split { display: flex; height: 10px; border-radius: 999px; overflow: hidden; margin-top: 10px; background: var(--raised); }
+  .split i { display: block; height: 100%; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
@@ -90,6 +99,8 @@
     <div class="charts">
       <div class="card"><div class="small" style="margin-bottom:4px">Comptes actifs par jour</div><div class="chart" id="chart-actifs"></div><div class="axis" id="axis-actifs"></div></div>
       <div class="card"><div class="small" style="margin-bottom:4px">Inscriptions par jour</div><div class="chart" id="chart-inscrits"></div><div class="axis" id="axis-inscrits"></div></div>
+      <div class="card" id="card-avis"><div class="small" style="margin-bottom:4px">Avis donnés par jour</div><div class="chart" id="chart-avis"></div><div class="axis" id="axis-avis"></div></div>
+      <div class="card" id="card-matchs"><div class="small" style="margin-bottom:4px">Matchs du soir lancés par jour</div><div class="chart" id="chart-matchs"></div><div class="axis" id="axis-matchs"></div></div>
     </div>
     <details>
       <summary>Voir les chiffres jour par jour</summary>
@@ -98,6 +109,11 @@
 
     <h2>Usage</h2>
     <div class="grid" id="usage"></div>
+
+    <div class="tops" id="tops" style="margin-top:12px"></div>
+
+    <h2>Catalogue</h2>
+    <div class="grid" id="catalog"></div>
 
     <h2>Invitations</h2>
     <div class="grid" id="invites"></div>
@@ -148,6 +164,19 @@
   }
 
   var VERDICTS = { coup_de_coeur: 'Coup de cœur', jaime: 'J’aime', ca_me_tente: 'Ça me tente', pas_pour_moi: 'Pas pour moi', deteste: 'Je déteste', passe: 'Passé' };
+  var PLATEFORMES = { android: 'Android', web: 'iPhone et web', ios: 'iPhone', inconnu: 'Avant le 19 nov.' };
+  var PCOLORS = { android: '#3DD68C', web: '#8C7FFF', ios: '#8C7FFF', inconnu: '#A3ABC2' };
+  function split(obj) {
+    var keys = Object.keys(obj || {}), tot = keys.reduce(function (t, k) { return t + obj[k]; }, 0);
+    if (!tot) return '';
+    return '<div class="split" aria-hidden="true">' + keys.map(function (k) { return '<i style="width:' + (100 * obj[k] / tot) + '%;background:' + (PCOLORS[k] || '#A3ABC2') + '"></i>'; }).join('') + '</div>';
+  }
+  function ranking(title, rows, empty) {
+    var max = Math.max.apply(null, [1].concat(rows.map(function (r) { return r.n; })));
+    return '<div class="card"><div class="small">' + esc(title) + '</div>' + (rows.length ? '<ol class="rank">' + rows.map(function (r) {
+      return '<li><span>' + esc(r.titre) + '</span><b>' + n(r.n) + '</b><span class="meter"><i style="width:' + Math.round(100 * r.n / max) + '%"></i></span></li>';
+    }).join('') + '</ol>' : '<p class="muted small" style="margin:8px 0 0">' + esc(empty) + '</p>') + '</div>';
+  }
   var CANAUX = { whatsapp: 'WhatsApp', sms: 'SMS', autre: 'Partage ou copie', qr: 'QR code', copie: 'Copie' };
 
   function render(s) {
@@ -159,7 +188,9 @@
       tile('Actifs aujourd’hui', n(a.jour), n(a.semaine) + ' sur 7 jours · ' + n(a.mois) + ' sur 30 jours') +
       tile('Rétention J+1', pct(r.j1, r.j1_base), n(r.j1) + ' revenus sur ' + n(r.j1_base)) +
       tile('Rétention J+7', pct(r.j7, r.j7_base), n(r.j7) + ' revenus sur ' + n(r.j7_base)) +
-      tile('Profils du foyer', n(u.profils_foyer), n(u.profils_enfants) + ' enfants ou ados');
+      tile('Profils du foyer', n(u.profils_foyer), n(u.profils_enfants) + ' enfants ou ados') +
+      (u.google !== undefined ? tile('Avec Google', n(u.google), n(u.sans_compte) + ' sans compte (' + pct(u.sans_compte, u.total) + ')') : '') +
+      (a.plateformes ? tile('Appareils (30 jours)', n((a.plateformes.android || 0) + (a.plateformes.web || 0)), list(a.plateformes, PLATEFORMES) + split(a.plateformes)) : '');
     var sw = s.swipes, p = s.propositions, m = s.matchs;
     $('usage').innerHTML =
       tile('Avis donnés (swipes)', n(sw.total), '+' + n(sw.sept_jours) + ' sur 7 jours · ' + n(sw.passes) + ' passés' + list(sw.par_avis, VERDICTS)) +
@@ -167,7 +198,14 @@
       tile('« Bouleverse-moi »', n(p.bouleverse)) +
       tile('Demandes avec les enfants', n(p.avec_enfants)) +
       tile('Matchs du soir', n(m.lances), n(m.termines) + ' terminés · +' + n(m.sept_jours) + ' sur 7 jours') +
-      tile('Matchs parfaits', pct(m.parfaits, m.termines), n(m.parfaits) + ' sur ' + n(m.termines) + ' terminés');
+      tile('Matchs parfaits', pct(m.parfaits, m.termines), n(m.parfaits) + ' sur ' + n(m.termines) + ' terminés') +
+      (m.a_deux !== undefined ? tile('Matchs à deux / en groupe', n(m.a_deux) + ' / ' + n(m.en_groupe), n(m.a_distance) + ' chacun sur son téléphone') : '');
+    $('tops').innerHTML = (m.top_titres ? ranking('Les titres les plus matchés', m.top_titres, 'Pas encore de match parfait.') : '') +
+      (s.envies_top ? ranking('Les envies les plus fréquentes', s.envies_top, 'Pas encore de titre mis en envie par 2 personnes.') : '');
+    var cat = s.catalogue;
+    $('catalog').innerHTML = cat ? tile('Titres proposés', n(cat.visibles), n(cat.films) + ' films · ' + n(cat.series) + ' séries') +
+      tile('Fin du monde, post-apo', n(cat.fin_du_monde)) + tile('Documentaires', n(cat.documentaires)) +
+      tile('Dernière mise à jour', cat.mis_a_jour ? new Date(cat.mis_a_jour).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) : '–', 'Automatique chaque mois') : '<p class="muted small">Disponible après la migration 0025.</p>';
     var i = s.invitations;
     $('invites').innerHTML =
       tile('Invitations partagées', n(i.partages), list(i.par_canal, CANAUX)) +
@@ -180,8 +218,13 @@
     if (rows.length) {
       bars('chart-actifs', 'axis-actifs', rows, 'actifs', 'actif(s)');
       bars('chart-inscrits', 'axis-inscrits', rows, 'inscrits', 'inscription(s)');
-      $('table').innerHTML = '<tr><th>Jour</th><th>Actifs</th><th>Inscriptions</th></tr>' +
-        rows.slice().reverse().map(function (x) { return '<tr><td>' + jour(x.jour) + '</td><td>' + n(x.actifs) + '</td><td>' + n(x.inscrits) + '</td></tr>'; }).join('');
+      var v2 = rows[0].avis !== undefined;
+      $('card-avis').classList.toggle('hidden', !v2);
+      $('card-matchs').classList.toggle('hidden', !v2);
+      if (v2) { bars('chart-avis', 'axis-avis', rows, 'avis', 'avis'); bars('chart-matchs', 'axis-matchs', rows, 'matchs', 'match(s)'); }
+      $('table').innerHTML = '<tr><th>Jour</th><th>Actifs</th><th>Inscriptions</th>' + (v2 ? '<th>Avis</th><th>Ce soir</th><th>Matchs</th>' : '') + '</tr>' +
+        rows.slice().reverse().map(function (x) { return '<tr><td>' + jour(x.jour) + '</td><td>' + n(x.actifs) + '</td><td>' + n(x.inscrits) + '</td>' +
+          (v2 ? '<td>' + n(x.avis) + '</td><td>' + n(x.ce_soir) + '</td><td>' + n(x.matchs) + '</td>' : '') + '</tr>'; }).join('');
     }
   }
 
